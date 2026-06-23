@@ -15,6 +15,8 @@ import com.example.demo.jwt.JwtService;
 import com.example.demo.shared.responses.ApiResponse;
 
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @AllArgsConstructor
@@ -24,6 +26,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
+    private static final Logger logger =
+    LoggerFactory.getLogger(AuthController.class);
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDto userDto) {
         userService.register(userDto);
@@ -32,6 +37,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDto>> login(@RequestBody UserDto userDto) {
+        
+
+        logger.info("Attempting signin",userDto);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword()));
 

@@ -17,6 +17,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.demo.auth.service.AuthService;
+import com.example.demo.jwt.JwtAuthFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

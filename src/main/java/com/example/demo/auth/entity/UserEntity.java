@@ -5,6 +5,7 @@ import com.example.demo.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
  
 
 @Entity
@@ -23,5 +24,6 @@ public class UserEntity extends BaseEntity{
     private String email;
 
     @Column(nullable = false)
+    @ToString.Exclude  // ✅ never shows in logs
     private String password;
 }

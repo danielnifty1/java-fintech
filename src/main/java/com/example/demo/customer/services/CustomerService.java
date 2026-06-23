@@ -1,5 +1,7 @@
 package com.example.demo.customer.services;
 
+import com.example.demo.auth.entity.UserEntity;
+import com.example.demo.auth.repository.UserEntityRepository;
 import com.example.demo.customer.dto.CustomerOnboardingDto;
 import com.example.demo.customer.entity.CustomerEntity;
 import com.example.demo.customer.repository.CustomerRepository;
@@ -7,6 +9,8 @@ import com.example.demo.shared.exception.CustomException;
 import com.example.demo.shared.services.CloudinaryService;
 
 import lombok.AllArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,10 +20,19 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CloudinaryService cloudinaryService; // ✅ replaces local file storage
+    private final UserEntityRepository userEntityRepository;
 
-    public CustomerEntity onboard(CustomerOnboardingDto dto) {
+    public CustomerEntity onboard(CustomerOnboardingDto dto, String userId) {
 
+        UserEntity getCustomer = getUserById(userId);
+
+        String email = getCustomer.getEmail();
         // duplicate checks
+
+        if(customerRepository.existsByUserId(userId))
+            throw new CustomException("User Already onboarded ");
+
+
         if (customerRepository.existsByBvn(dto.getBvn()))
             throw new CustomException("BVN already registered");
 
@@ -34,6 +47,8 @@ public class CustomerService {
         customer.setLastName(dto.getLastName());
         customer.setMiddleName(dto.getMiddleName());
         customer.setPhoneNumber(dto.getPhoneNumber());
+        customer.setEmail(email);
+        customer.setUserId(userId);
         customer.setDateOfBirth(dto.getDateOfBirth());
         customer.setGender(CustomerEntity.Gender.valueOf(dto.getGender().toUpperCase()));
         customer.setAddressLine1(dto.getAddressLine1());
@@ -53,24 +68,23 @@ public class CustomerService {
         // ✅ upload to Cloudinary
         if (isValidBase64(dto.getProfileImage()))
             customer.setProfileImageUrl(
-                cloudinaryService.uploadBase64(dto.getProfileImage(), "profile-images"));
-
+                    cloudinaryService.uploadBase64(dto.getProfileImage(), "profile-images"));
 
         if (isValidBase64(dto.getIdFront()))
             customer.setIdFrontUrl(
-                cloudinaryService.uploadBase64(dto.getIdFront(), "id-documents"));
+                    cloudinaryService.uploadBase64(dto.getIdFront(), "id-documents"));
 
         if (isValidBase64(dto.getIdBack()))
             customer.setIdBackUrl(
-                cloudinaryService.uploadBase64(dto.getIdBack(), "id-documents"));
+                    cloudinaryService.uploadBase64(dto.getIdBack(), "id-documents"));
 
         if (isValidBase64(dto.getSignature()))
             customer.setSignatureUrl(
-                cloudinaryService.uploadBase64(dto.getSignature(), "signatures"));
+                    cloudinaryService.uploadBase64(dto.getSignature(), "signatures"));
 
         if (isValidBase64(dto.getProofOfAddress()))
             customer.setProofOfAddressUrl(
-                cloudinaryService.uploadBase64(dto.getProofOfAddress(), "proof-of-address"));
+                    cloudinaryService.uploadBase64(dto.getProofOfAddress(), "proof-of-address"));
 
         return customerRepository.save(customer);
     }
@@ -78,7 +92,13 @@ public class CustomerService {
     // fetch customer by userId (use after JWT auth)
     public CustomerEntity getByUserId(String userId) {
         return customerRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException("Customer profile not found"));
+                .orElseThrow(() -> new CustomException("Customer profile not found", HttpStatus.NOT_FOUND));
+    }
+
+    public UserEntity getUserById(String userId) {
+        return userEntityRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("Customer profile not found", HttpStatus.NOT_FOUND));
+
     }
 
     // update profile image only
