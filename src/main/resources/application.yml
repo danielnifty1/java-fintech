@@ -1,9 +1,12 @@
 server:
-  error:
-    include-message: always
-    include-binding-errors: always
+  servlet:
+    context-path: /api/v1
 
 spring:
+  web:
+    error:
+      include-binding-errors: always  # ← moved here
+      include-message: always
   datasource:
     url: jdbc:mysql://localhost:3306/javaspringboot?useSSL=false&serverTimezone=UTC
     username: root
@@ -12,7 +15,6 @@ spring:
   devtools:
     restart:
       enabled: true
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,7 +22,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
 
 jwt:
   secret: bjhEGV930JVMkvQPDm4d2wKu5ifCq95fvRPzVUIAoWfvOCcF5XfSWjHYsH2rnZo+NbrDswQstTaA5uVzr3cmqg==
