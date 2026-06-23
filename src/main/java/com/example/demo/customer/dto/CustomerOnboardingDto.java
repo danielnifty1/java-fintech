@@ -40,9 +40,10 @@ public class CustomerOnboardingDto {
     private LocalDate idExpiryDate;
 
     // image files
-    private MultipartFile profileImage;
-    private MultipartFile idFront;
-    private MultipartFile idBack;
-    private MultipartFile signature;
-    private MultipartFile proofOfAddress;
+   // ✅ base64 strings instead of MultipartFile
+   private String profileImage;
+   private String idFront;
+   private String idBack;
+   private String signature;
+   private String proofOfAddress;
 }
