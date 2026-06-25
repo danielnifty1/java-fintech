@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.demo.shared.responses.ApiResponse;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -56,4 +59,24 @@ public class GlobalExceptionHandler {
                 .status(500)
                 .body(ApiResponse.error("Something went wrong"));
     }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+public ResponseEntity<ApiResponse<Void>> handleEnumMismatch(MethodArgumentTypeMismatchException e) {
+    String paramName = e.getName();
+    String invalidValue = String.valueOf(e.getValue());
+    
+    // if the param is an enum, list the valid values
+    String message = invalidValue + " is not a valid value for " + paramName;
+    
+    if (e.getRequiredType() != null && e.getRequiredType().isEnum()) {
+        String validValues = Arrays.stream(e.getRequiredType().getEnumConstants())
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+        message = invalidValue + " is not a valid " + paramName + ". Accepted values: " + validValues;
+    }
+
+    return ResponseEntity
+            .status(400)
+            .body(ApiResponse.error(message));
+}
 }

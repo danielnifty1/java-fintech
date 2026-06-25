@@ -2,6 +2,7 @@ package com.example.demo.wallet.controller;
 
 import com.example.demo.auth.entity.UserEntity;
 import com.example.demo.shared.annotation.CurrentUser;
+import com.example.demo.shared.enums.Currency;
 import com.example.demo.shared.responses.ApiResponse;
 import com.example.demo.transactions.entity.TransactionEntity;
 import com.example.demo.wallet.dto.CreditDebitDto;
@@ -11,11 +12,17 @@ import com.example.demo.wallet.entity.WalletEntity;
 import com.example.demo.wallet.service.WalletService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @AllArgsConstructor
@@ -23,19 +30,21 @@ import java.util.List;
 public class WalletController {
 
     private final WalletService walletService;
+    private static final Logger logger =
+    LoggerFactory.getLogger(WalletService.class);
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<WalletEntity>> createWallet(
             @CurrentUser UserEntity user,
-            @RequestParam(defaultValue = "NGN") WalletEntity.Currency currency) {
+            @RequestParam(defaultValue = "NGN") Currency currency) {
         WalletEntity wallet = walletService.createWallet(user.getId(), currency);
         return ResponseEntity.ok(ApiResponse.success("Wallet created", wallet));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<WalletResponseDto>> getWallet(
+    public ResponseEntity<ApiResponse<List<WalletResponseDto>>> getWallet(
             @CurrentUser UserEntity user) {
-        WalletResponseDto wallet = walletService.getWalletByUserId(user.getId());
+        List<WalletResponseDto> wallet = walletService.getWalletsByUserId(user.getId());
         return ResponseEntity.ok(ApiResponse.success("Wallet fetched", wallet));
     }
 
@@ -51,10 +60,10 @@ public class WalletController {
 
 
     @GetMapping("/balance")
-    public ResponseEntity<ApiResponse<BigDecimal>> getBalance(
+    public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getBalance(
             @CurrentUser UserEntity user) {
-        BigDecimal balance = walletService.getBalance(user.getId());
-        return ResponseEntity.ok(ApiResponse.success("Balance fetched", balance));
+        Map<String, BigDecimal> balances = walletService.getAllWalletBalances(user.getId());
+        return ResponseEntity.ok(ApiResponse.success("Balances fetched", balances));
     }
 
     // @PostMapping("/credit")

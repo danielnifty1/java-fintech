@@ -1,0 +1,1 @@
+ALTER TABLE wallets DROP INDEX UKsswfdl9fq40xlkove1y5kc7kv;

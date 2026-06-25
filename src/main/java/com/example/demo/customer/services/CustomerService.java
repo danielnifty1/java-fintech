@@ -6,6 +6,7 @@ import com.example.demo.customer.dto.CustomerOnboardingDto;
 import com.example.demo.customer.dto.UpdateCustomerDto;
 import com.example.demo.customer.entity.CustomerEntity;
 import com.example.demo.customer.repository.CustomerRepository;
+import com.example.demo.shared.enums.Currency;
 import com.example.demo.shared.exception.CustomException;
 import com.example.demo.shared.services.CloudinaryService;
 import com.example.demo.wallet.service.WalletService;
@@ -24,6 +25,7 @@ public class CustomerService {
     private final CloudinaryService cloudinaryService; // ✅ replaces local file storage
     private final UserEntityRepository userEntityRepository;
     private final WalletService walletService;
+     
 
     public CustomerEntity onboard(CustomerOnboardingDto dto, String userId) {
 
@@ -89,6 +91,7 @@ public class CustomerService {
             customer.setProofOfAddressUrl(
                     cloudinaryService.uploadBase64(dto.getProofOfAddress(), "proof-of-address"));
 
+                    walletService.createWallet(userId,Currency.NGN);
         return customerRepository.save(customer);
     }
 

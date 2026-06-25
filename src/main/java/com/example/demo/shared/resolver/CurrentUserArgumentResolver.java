@@ -73,7 +73,7 @@ public Object resolveArgument(MethodParameter parameter,
     if (!user.getId().equals(userId)) {
         throw new CustomException("Invalid token", HttpStatus.FORBIDDEN);
     }
-    logger.info("the user: {}", user.getId());
+   
 
 //     logger.info("user id: {}", user.getId());
 // logger.info("user email: {}", user.getEmail());

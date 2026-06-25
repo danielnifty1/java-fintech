@@ -3,10 +3,13 @@ package com.example.demo.shared.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.SQLRestriction;
  
 
 @Getter
 @MappedSuperclass
+@SQLRestriction("deleted_at IS NULL") // ← filters soft-deleted records
 public abstract class BaseEntity {
 
     @Id

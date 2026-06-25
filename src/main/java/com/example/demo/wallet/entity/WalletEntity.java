@@ -4,19 +4,22 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+ 
+import org.hibernate.annotations.SQLRestriction;
+ 
 
 import com.example.demo.shared.entity.BaseEntity;
+import com.example.demo.shared.enums.Currency;
 
-import java.time.LocalDateTime; 
+ 
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
+@SQLRestriction("deleted_at IS NULL") // ← filters soft-deleted records
 @Table(name = "wallets")
 public class WalletEntity  extends BaseEntity{
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String userId;
 
     @Column(nullable = false, unique = true)
@@ -33,15 +36,9 @@ public class WalletEntity  extends BaseEntity{
     @Version
     private Long version; // ← optimistic lock layer
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
 
-    public enum Currency {
-        NGN, USD
-    }
+ 
 
     public enum Status {
         ACTIVE, FROZEN, CLOSED

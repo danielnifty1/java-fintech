@@ -41,7 +41,6 @@ public class CustomerController {
     ){
         CustomerEntity customer =customerService.onboard(dto,currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Onboarding successful", customer));
-
     }
 
 
