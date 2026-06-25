@@ -8,6 +8,7 @@ import com.example.demo.customer.entity.CustomerEntity;
 import com.example.demo.customer.repository.CustomerRepository;
 import com.example.demo.shared.exception.CustomException;
 import com.example.demo.shared.services.CloudinaryService;
+import com.example.demo.wallet.service.WalletService;
 
 import lombok.AllArgsConstructor;
 
@@ -22,6 +23,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CloudinaryService cloudinaryService; // ✅ replaces local file storage
     private final UserEntityRepository userEntityRepository;
+    private final WalletService walletService;
 
     public CustomerEntity onboard(CustomerOnboardingDto dto, String userId) {
 

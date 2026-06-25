@@ -57,7 +57,7 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(registry -> {
-                registry.requestMatchers("/auth/register", "/auth/login").permitAll();
+                registry.requestMatchers("/auth/register", "/auth/login","/transactions/webhook/**").permitAll();
                 registry.anyRequest().authenticated();
             })
             .build();
