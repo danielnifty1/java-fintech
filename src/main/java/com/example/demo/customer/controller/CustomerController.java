@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.auth.entity.UserEntity;
 import com.example.demo.customer.dto.CustomerOnboardingDto;
+import com.example.demo.customer.dto.UpdateCustomerDto;
 import com.example.demo.customer.entity.CustomerEntity;
 import com.example.demo.customer.services.CustomerService;
 import com.example.demo.shared.annotation.CurrentUser;
@@ -42,6 +44,15 @@ public class CustomerController {
 
     }
 
+
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponse<CustomerEntity>>updateCustoner(
+        @RequestBody UpdateCustomerDto dto,
+        @CurrentUser UserEntity currentUser
+    ){
+        CustomerEntity customer =customerService.update(currentUser.getId(),dto);
+        return ResponseEntity.ok(ApiResponse.success("Onboarding successful", customer));
+    } 
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<CustomerEntity>> getMyProfile(

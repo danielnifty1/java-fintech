@@ -3,6 +3,7 @@ package com.example.demo.customer.services;
 import com.example.demo.auth.entity.UserEntity;
 import com.example.demo.auth.repository.UserEntityRepository;
 import com.example.demo.customer.dto.CustomerOnboardingDto;
+import com.example.demo.customer.dto.UpdateCustomerDto;
 import com.example.demo.customer.entity.CustomerEntity;
 import com.example.demo.customer.repository.CustomerRepository;
 import com.example.demo.shared.exception.CustomException;
@@ -116,6 +117,94 @@ public class CustomerService {
         return customerRepository.save(customer);
     }
 
+    
+    public CustomerEntity update(String userId, UpdateCustomerDto dto) {
+
+        // fetch existing customer
+        CustomerEntity customer = customerRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException("Customer profile not found", HttpStatus.NOT_FOUND));
+    
+        // ✅ only update fields that are not null in the DTO
+        if (isNotBlank(dto.getFirstName()))
+            customer.setFirstName(dto.getFirstName());
+    
+        if (isNotBlank(dto.getLastName()))
+            customer.setLastName(dto.getLastName());
+    
+        if (isNotBlank(dto.getMiddleName()))
+            customer.setMiddleName(dto.getMiddleName());
+    
+        if (isNotBlank(dto.getPhoneNumber())) {
+            // check phone not taken by another customer
+            if (customerRepository.existsByPhoneNumber(dto.getPhoneNumber())
+                    && !dto.getPhoneNumber().equals(customer.getPhoneNumber())) {
+                throw new CustomException("Phone number already in use", HttpStatus.CONFLICT);
+            }
+            customer.setPhoneNumber(dto.getPhoneNumber());
+        }
+    
+        if (dto.getDateOfBirth() != null)
+            customer.setDateOfBirth(dto.getDateOfBirth());
+    
+        if (isNotBlank(dto.getGender()))
+            customer.setGender(CustomerEntity.Gender.valueOf(dto.getGender().toUpperCase()));
+    
+        if (isNotBlank(dto.getMaritalStatus()))
+            customer.setMaritalStatus(CustomerEntity.MaritalStatus.valueOf(dto.getMaritalStatus().toUpperCase()));
+    
+        if (isNotBlank(dto.getNationality()))
+            customer.setNationality(dto.getNationality());
+    
+        if (isNotBlank(dto.getAddressLine1()))
+            customer.setAddressLine1(dto.getAddressLine1());
+    
+        if (isNotBlank(dto.getAddressLine2()))
+            customer.setAddressLine2(dto.getAddressLine2());
+    
+        if (isNotBlank(dto.getCity()))
+            customer.setCity(dto.getCity());
+    
+        if (isNotBlank(dto.getState()))
+            customer.setState(dto.getState());
+    
+        if (isNotBlank(dto.getCountry()))
+            customer.setCountry(dto.getCountry());
+    
+        if (isNotBlank(dto.getPostalCode()))
+            customer.setPostalCode(dto.getPostalCode());
+    
+        // ✅ update images — delete old from Cloudinary first
+        if (isValidBase64(dto.getProfileImage())) {
+            if (customer.getProfileImageUrl() != null)
+                cloudinaryService.delete(customer.getProfileImageUrl());
+            customer.setProfileImageUrl(
+                cloudinaryService.uploadBase64(dto.getProfileImage(), "profile-images"));
+        }
+    
+        if (isValidBase64(dto.getSignature())) {
+            if (customer.getSignatureUrl() != null)
+                cloudinaryService.delete(customer.getSignatureUrl());
+            customer.setSignatureUrl(
+                cloudinaryService.uploadBase64(dto.getSignature(), "signatures"));
+        }
+    
+        if (isValidBase64(dto.getProofOfAddress())) {
+            if (customer.getProofOfAddressUrl() != null)
+                cloudinaryService.delete(customer.getProofOfAddressUrl());
+            customer.setProofOfAddressUrl(
+                cloudinaryService.uploadBase64(dto.getProofOfAddress(), "proof-of-address"));
+        }
+    
+        return customerRepository.save(customer);
+    }
+    
+  
+
+    // check blank field  helper
+    private boolean isNotBlank(String value) {
+        return value != null && !value.isBlank();
+    }
+    
     // ✅ null + empty check helper
     private boolean isValidFile(MultipartFile file) {
         return file != null && !file.isEmpty();
