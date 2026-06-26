@@ -96,8 +96,5 @@ public class WalletService {
         return "WLT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    private String generateReference() {
-        return "TXN-" + Instant.now().toEpochMilli() + "-" +
-                UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-    }
+ 
 }
